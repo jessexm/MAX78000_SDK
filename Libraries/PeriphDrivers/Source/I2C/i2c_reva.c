@@ -748,6 +748,9 @@ int MXC_I2C_RevA_MasterTransaction(mxc_i2c_req_t* req)
     }
     else {
         i2c->mstctrl |= MXC_F_I2C_MSTCTRL_STOP;
+        // DONE is asserted before STOP so wait here for STOP otherwise the next transaction piles up on this one.
+        while (!(i2c->intfl0 & MXC_F_I2C_INTFL0_STOP));
+        i2c->intfl0 = MXC_F_I2C_INTFL0_STOP;
     }
     
     while (!(i2c->intfl0 & MXC_F_I2C_INTFL0_DONE));  // Wait for Transaction to finish
